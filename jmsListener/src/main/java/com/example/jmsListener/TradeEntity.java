@@ -44,4 +44,7 @@ public class TradeEntity implements Serializable{
 
     @Column(name = "exchange", nullable = false)
     private String exchange;
+
+    @Column(name = "state", nullable = false)
+    private String state;
 }
