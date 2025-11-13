@@ -16,7 +16,7 @@ public class JmsConfig {
     public DefaultJmsListenerContainerFactory jmsListenerContainerFactory(ConnectionFactory connectionFactory) {
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
-        factory.setPubSubDomain(false);  // because your listener listens to a QUEUE ("trade")
+        factory.setPubSubDomain(false);
         return factory;
     }
 

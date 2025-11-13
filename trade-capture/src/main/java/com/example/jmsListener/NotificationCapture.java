@@ -16,8 +16,14 @@ public class NotificationCapture {
     public void processRuleResult(String message) {
         System.out.println("Processing result in TradeCapture: " + message);
         try {
-            String tradeId = message.substring(0, message.length() - 4);
-            String status = message.substring(message.length() - 3);
+
+            String tradeId="";
+            String status = message.substring(message.length() - 4).trim();
+            if (status.equals("ACK")){
+                tradeId = message.substring(0, message.length() - 4).trim();
+            }else{
+                tradeId = message.substring(0, message.length() - 5).trim();
+            }
             TradeEntity trade = tradeDao.findById(tradeId).orElse(null);
             if (trade != null) {
                 if (status.equals("ACK")) {

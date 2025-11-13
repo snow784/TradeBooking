@@ -15,18 +15,15 @@ public class RuleService {
 
     private final RuleResultDao ruleResultDao;
     private final JmsTemplate queueTemplate;
-    private final JmsTemplate topicTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     public RuleService(
             RuleResultDao ruleResultDao,
-            @Qualifier("queueTemplate") JmsTemplate queueTemplate,
-            @Qualifier("topicTemplate") JmsTemplate topicTemplate
+            @Qualifier("queueTemplate") JmsTemplate queueTemplate
     ) {
         this.ruleResultDao = ruleResultDao;
         this.queueTemplate = queueTemplate;
-        this.topicTemplate = topicTemplate;
     }
 
     @Transactional
