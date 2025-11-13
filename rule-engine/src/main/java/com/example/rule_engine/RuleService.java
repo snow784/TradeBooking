@@ -1,6 +1,7 @@
 package com.example.rule_engine;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
@@ -12,16 +13,20 @@ import jakarta.transaction.Transactional;
 @Component
 public class RuleService {
 
+    private final RuleResultDao ruleResultDao;
+    private final JmsTemplate queueTemplate;
+    private final JmsTemplate topicTemplate;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Autowired
-    private RuleResultDao ruleResultDao;
-    
-    private final JmsTemplate jmsTemplate;
-    private final ObjectMapper objectMapper;
-
-    public RuleService(JmsTemplate jmsTemplate) {
-        this.jmsTemplate = jmsTemplate;
-        this.objectMapper = new ObjectMapper();
-
+    public RuleService(
+            RuleResultDao ruleResultDao,
+            @Qualifier("queueTemplate") JmsTemplate queueTemplate,
+            @Qualifier("topicTemplate") JmsTemplate topicTemplate
+    ) {
+        this.ruleResultDao = ruleResultDao;
+        this.queueTemplate = queueTemplate;
+        this.topicTemplate = topicTemplate;
     }
 
     @Transactional
@@ -47,7 +52,7 @@ public class RuleService {
     public void sendResult(RuleResultEntity ruleResult){
         try {
             String message = objectMapper.writeValueAsString(ruleResult);
-            jmsTemplate.convertAndSend("rule_result.queue", message);
+            queueTemplate.convertAndSend("rule_result.queue", message);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -30,8 +30,7 @@ public class TradeCapture {
             trade.setState("CAPTURED");
             tradeDao.save(trade);
             System.out.println("Trade saved to database: " + trade);
-            sendTradeToRuleQueue(trade);
-            sendTradeToFraudQueue(trade);
+            sendTradeToTradeQueue(trade);
             trade.setState("InProgress");
             tradeDao.save(trade);
 
@@ -40,7 +39,7 @@ public class TradeCapture {
         } 
     }
 
-    public void sendTradeToRuleQueue(TradeEntity tradeContent){
+    public void sendTradeToTradeQueue(TradeEntity tradeContent){
         try {
             String trade = objectMapper.writeValueAsString(tradeContent);
             jmsTemplate.convertAndSend("trade", trade);
@@ -49,14 +48,5 @@ public class TradeCapture {
             e.printStackTrace();
         }
     }
-    public void sendTradeToFraudQueue(TradeEntity tradeContent){
-        String trade;
-        try {
-            trade = objectMapper.writeValueAsString(tradeContent);
-            jmsTemplate.convertAndSend("trade",trade);
-        } catch (JsonProcessingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
+    
 }

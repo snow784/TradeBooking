@@ -1,6 +1,7 @@
 package com.example.fraud_model;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
@@ -14,16 +15,17 @@ import jakarta.transaction.Transactional;
 @Component
 public class FraudService {
 
+    private final FraudResultDao fraudResultDao;
+    private final JmsTemplate queueTemplate;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Autowired
-    private FraudResultDao fraudResultDao;
-
-    private final JmsTemplate jmsTemplate;
-    private final ObjectMapper objectMapper;
-
-    public FraudService(JmsTemplate jmsTemplate) {
-        this.jmsTemplate = jmsTemplate;
-        this.objectMapper = new ObjectMapper();
-
+    public FraudService(
+            FraudResultDao fraudResultDao,
+            @Qualifier("queueTemplate") JmsTemplate queueTemplate
+    ) {
+        this.fraudResultDao = fraudResultDao;
+        this.queueTemplate = queueTemplate;
     }
 
     @Transactional
@@ -53,7 +55,7 @@ public class FraudService {
     public void sendResult(FraudResultEntity fraudResult){
         try {
             String message = objectMapper.writeValueAsString(fraudResult);
-            jmsTemplate.convertAndSend("fraud_result.queue", message);
+            queueTemplate.convertAndSend("fraud_result.queue", message);
         } catch (JsonProcessingException ex) {
             ex.printStackTrace();
         }

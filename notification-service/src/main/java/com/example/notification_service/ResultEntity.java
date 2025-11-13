@@ -18,9 +18,9 @@ public class ResultEntity {
     @Column(name = "trade_id", nullable = false, unique = true)
     private String tradeId;
 
-    @Column(name = "rule_is_failed", nullable = false)
+    @Column(name = "rule_is_failed")
     private String ruleIsFailed;
 
-    @Column(name = "fraud_is_failed", nullable = false)
+    @Column(name = "fraud_is_failed")
     private String fraudIsFailed;
 }
