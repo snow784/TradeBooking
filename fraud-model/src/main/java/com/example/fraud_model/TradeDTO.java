@@ -25,5 +25,7 @@ public class TradeDTO implements Serializable{
 
     private String traderId;
 
+    private String state;
+
     private String exchange;
 }

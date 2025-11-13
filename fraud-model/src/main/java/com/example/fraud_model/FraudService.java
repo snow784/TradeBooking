@@ -27,7 +27,7 @@ public class FraudService {
     }
 
     @Transactional
-    @JmsListener(destination = "trade_fraud.queue")
+    @JmsListener(destination = "trade", subscription = "fraud" , containerFactory = "jmsListenerContainerFactory")
     public void processTradeMessage(String message) {
         System.out.println("Processing trade message in Fraud detection model: " + message);
         try {

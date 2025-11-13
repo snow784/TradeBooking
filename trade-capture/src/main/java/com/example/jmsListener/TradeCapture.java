@@ -1,7 +1,6 @@
 package com.example.jmsListener;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
@@ -20,37 +19,44 @@ public class TradeCapture {
 
     public TradeCapture(JmsTemplate jmsTemplate) {
         this.jmsTemplate = jmsTemplate;
-        this.objectMapper = new ObjectMapper(); // Jackson mapper
+        this.objectMapper = new ObjectMapper(); 
 
     }
 
     @Transactional
-    @JmsListener(destination = "trade.queue")
-    public void consumeMessage(String message) {
+    public void consumeTrade(TradeEntity trade) {
         try {
-            TradeEntity trade = objectMapper.readValue(message, TradeEntity.class);
             System.out.println("Received message: " + trade);
-            Thread.sleep(15000);
             trade.setState("CAPTURED");
             tradeDao.save(trade);
             System.out.println("Trade saved to database: " + trade);
-            sendTradeToRuleQueue(message);
-            sendTradeToFraudQueue(message);
+            sendTradeToRuleQueue(trade);
+            sendTradeToFraudQueue(trade);
             trade.setState("InProgress");
             tradeDao.save(trade);
 
-        } catch (JsonProcessingException ex) {
-            ex.printStackTrace();
-        } catch (InterruptedException e) {
+        }catch(Exception e){
+            e.printStackTrace();
+        } 
+    }
+
+    public void sendTradeToRuleQueue(TradeEntity tradeContent){
+        try {
+            String trade = objectMapper.writeValueAsString(tradeContent);
+            jmsTemplate.convertAndSend("trade", trade);
+        } catch (JsonProcessingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
-
-    public void sendTradeToRuleQueue(String tradeContent){
-        jmsTemplate.convertAndSend("trade_rule.queue", tradeContent);
-    }
-    public void sendTradeToFraudQueue(String tradeContent){
-        jmsTemplate.convertAndSend("trade_fraud.queue",tradeContent);
+    public void sendTradeToFraudQueue(TradeEntity tradeContent){
+        String trade;
+        try {
+            trade = objectMapper.writeValueAsString(tradeContent);
+            jmsTemplate.convertAndSend("trade",trade);
+        } catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 }

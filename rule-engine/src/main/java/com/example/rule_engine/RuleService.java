@@ -25,7 +25,7 @@ public class RuleService {
     }
 
     @Transactional
-    @JmsListener(destination = "trade_rule.queue")
+    @JmsListener(destination = "trade", subscription="rule",containerFactory = "jmsListenerContainerFactory")
     public void processTradeMessage(String message) {
         System.out.println("Processing trade message in Rule Engine: " + message);
         try {
